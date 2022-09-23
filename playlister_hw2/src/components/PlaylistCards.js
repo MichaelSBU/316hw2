@@ -3,8 +3,8 @@ import React from "react";
 
 export default class PlaylistCards extends React.Component {
     render() {
-        const { currentList, 
-                moveSongCallback } = this.props;
+        const { currentList, index,
+                moveSongCallback, deleteSongCallback } = this.props;
         if (currentList === null) {
             return (
                 <div id="playlist-cards"></div>
@@ -14,12 +14,14 @@ export default class PlaylistCards extends React.Component {
             return (
                 <div id="playlist-cards">
                     {
-                        currentList.songs.map((song, index) => (
+                        currentList.songs.map((song, i) => (
                             <SongCard
-                                id={'playlist-song-' + (index+1)}
-                                key={'playlist-song-' + (index+1)}
+                                id={'playlist-song-' + (i+1)}
+                                key={'playlist-song-' + (i+1)}
                                 className={"playlist-card"}
                                 song={song}
+                                index={index}
+                                deleteSongCallback = {deleteSongCallback}
                                 moveCallback={moveSongCallback}
                             />
                         ))

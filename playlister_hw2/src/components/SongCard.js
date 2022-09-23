@@ -53,6 +53,10 @@ export default class SongCard extends React.Component {
         // ASK THE MODEL TO MOVE THE DATA
         this.props.moveCallback(sourceId, targetId);
     }
+    handleDeleteSong = (event) => {
+        event.stopPropagation();
+        this.props.deleteSongCallback(this.getItemNum());
+    }
 
     getItemNum = () => {
         return this.props.id.substring("playlist-song-".length);
@@ -60,9 +64,7 @@ export default class SongCard extends React.Component {
 
     render() {
         const { song } = this.props;
-        console.log(this.props);
         let num = this.getItemNum();
-        console.log("num: " + num);
         let itemClass = "playlister-song";
         if (this.state.draggedTo) {
             itemClass = "playlister-song-dragged-to";
