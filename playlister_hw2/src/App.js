@@ -137,7 +137,6 @@ class App extends React.Component {
     deleteSong = (index) => {
         this.state.currentList.songs.splice(index, 1);
         this.setStateWithUpdatedList(this.state.currentList);
-        
     }
     deleteMarkedList = () => {
         this.deleteList(this.state.listKeyPairMarkedForDeletion.key);
@@ -217,7 +216,7 @@ class App extends React.Component {
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : prevState.SongIndexMarkedForDeletion,
+            SongIndexMarkedForDeletion : null,
             currentList : list,
             sessionData : this.state.sessionData
         }), () => {
