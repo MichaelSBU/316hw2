@@ -132,12 +132,6 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
-
-    // THIS FUNCTION BEGINS THE PROCESS OF DELETING A SONG.
-    deleteSong = (index) => {
-        this.state.currentList.songs.splice(index, 1);
-        this.setStateWithUpdatedList(this.state.currentList);
-    }
     deleteMarkedList = () => {
         this.deleteList(this.state.listKeyPairMarkedForDeletion.key);
         this.hideDeleteListModal();
@@ -252,6 +246,21 @@ class App extends React.Component {
         }
         this.setStateWithUpdatedList(list);
     }
+
+    // THIS FUNCTION BEGINS THE PROCESS OF DELETING A SONG.
+    deleteSong = (index) => {
+        this.state.currentList.songs.splice(index, 1);
+        this.setStateWithUpdatedList(this.state.currentList);
+    }
+
+    //THIS FUNCTION BEGINS THE PROCESS OF ADDING A SONG.
+    addSong = (songName, artistName, youtubeIdOfSong, index) => {
+        if(this.state.currentList !== null){
+            this.state.currentList.songs.splice(index, 0, {title: songName, artist: artistName, youtubeId: "https://www.youtube.com/watch?v=" + youtubeIdOfSong});
+            this.setStateWithUpdatedList(this.state.currentList);
+        }
+    }
+
     // THIS FUNCTION ADDS A MoveSong_Transaction TO THE TRANSACTION STACK
     addMoveSongTransaction = (start, end) => {
         let transaction = new MoveSong_Transaction(this, start, end);
@@ -291,7 +300,7 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : index-1,
+            SongIndexMarkedForDeletion : index,
             sessionData: prevState.sessionData
         }), () => {
             // PROMPT THE USER
@@ -347,6 +356,8 @@ class App extends React.Component {
                     canUndo={canUndo}
                     canRedo={canRedo}
                     canClose={canClose} 
+                    currentList={this.state.currentList}
+                    addSongCallback={this.addSong}
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
