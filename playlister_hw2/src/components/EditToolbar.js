@@ -5,7 +5,7 @@ export default class EditToolbar extends React.Component {
     //HANDLES ADDING A SONG
     handleAddSong = (event) => {
         event.stopPropagation();
-        this.props.addSongCallback("Untitled", "Unknown", "https://www.youtube.com/watch?v=", this.props.currentList.songs.length);
+        this.props.addSongCallback("Untitled", "Unknown", "dQw4w9WgXcQ", this.props.currentList.songs.length);
     }
     
     render() {

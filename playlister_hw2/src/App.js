@@ -15,6 +15,7 @@ import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.js';
 import DeleteSongModal from './components/DeleteSongModal.js';
+import EditSongModal from './components/EditSongModal.js';
 
 // THESE REACT COMPONENTS ARE IN OUR UI
 import Banner from './components/Banner.js';
@@ -40,7 +41,7 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             listKeyPairMarkedForDeletion : null,
-            SongIndexMarkedForDeletion : null,
+            SongIndexMarked : null,
             currentList : null,
             sessionData : loadedSessionData
         }
@@ -78,7 +79,7 @@ class App extends React.Component {
         // SHOULD BE DONE VIA ITS CALLBACK
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : prevState.SongIndexMarkedForDeletion,
+            SongIndexMarked : prevState.SongIndexMarked,
             currentList: newList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
@@ -116,7 +117,7 @@ class App extends React.Component {
         // AND FROM OUR APP STATE
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : null,
-            SongIndexMarkedForDeletion : prevState.SongIndexMarkedForDeletion,
+            SongIndexMarked : prevState.SongIndexMarked,
             currentList: newCurrentList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
@@ -136,10 +137,7 @@ class App extends React.Component {
         this.deleteList(this.state.listKeyPairMarkedForDeletion.key);
         this.hideDeleteListModal();
     }
-    deleteMarkedSong = () => {
-        this.deleteSong(this.state.SongIndexMarkedForDeletion);
-        this.hideDeleteSongModal();
-    }
+
     // THIS FUNCTION SPECIFICALLY DELETES THE CURRENT LIST
     deleteCurrentList = () => {
         if (this.state.currentList) {
@@ -165,7 +163,7 @@ class App extends React.Component {
 
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : null,
-            SongIndexMarkedForDeletion : null,
+            SongIndexMarked : null,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
@@ -185,7 +183,7 @@ class App extends React.Component {
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : prevState.SongIndexMarkedForDeletion,
+            SongIndexMarked : prevState.SongIndexMarked,
             currentList: newCurrentList,
             sessionData: this.state.sessionData
         }), () => {
@@ -198,7 +196,7 @@ class App extends React.Component {
     closeCurrentList = () => {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : prevState.SongIndexMarkedForDeletion,
+            SongIndexMarked : prevState.SongIndexMarked,
             currentList: null,
             sessionData: this.state.sessionData
         }), () => {
@@ -210,7 +208,7 @@ class App extends React.Component {
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : null,
+            SongIndexMarked : null,
             currentList : list,
             sessionData : this.state.sessionData
         }), () => {
@@ -247,16 +245,38 @@ class App extends React.Component {
         this.setStateWithUpdatedList(list);
     }
 
+    deleteMarkedSong = () => {
+        this.deleteSong(this.state.SongIndexMarked);
+        this.hideDeleteSongModal();
+    }
+
+
     // THIS FUNCTION BEGINS THE PROCESS OF DELETING A SONG.
     deleteSong = (index) => {
-        this.state.currentList.songs.splice(index, 1);
-        this.setStateWithUpdatedList(this.state.currentList);
+        let currList = this.state.currentList;
+        currList.songs.splice(index, 1);
+        this.setStateWithUpdatedList(currList);
+    }
+
+    editMarkedSong = () => {
+        let title = document.getElementById("edit-title-text").value;
+        let artist = document.getElementById("edit-artist-text").value;
+        let id = document.getElementById("edit-youTubeId-text").value;
+        this.editSong(title, artist, id, this.state.SongIndexMarked);
+        this.hideEditSongModal();
+    }
+
+    // THIS FUNCTION BEGINS THE PROCESS OF DELETING A SONG.
+    editSong = (title, artist, youTubeId, index) => {
+        let currList = this.state.currentList;
+        currList.songs[index] = {title, artist, youTubeId}
+        this.setStateWithUpdatedList(currList);
     }
 
     //THIS FUNCTION BEGINS THE PROCESS OF ADDING A SONG.
-    addSong = (songName, artistName, youtubeIdOfSong, index) => {
+    addSong = (songName, artistName, youTubeIdOfSong, index) => {
         if(this.state.currentList !== null){
-            this.state.currentList.songs.splice(index, 0, {title: songName, artist: artistName, youtubeId: "https://www.youtube.com/watch?v=" + youtubeIdOfSong});
+            this.state.currentList.songs.splice(index, 0, {title: songName, artist: artistName, youTubeId: youTubeIdOfSong});
             this.setStateWithUpdatedList(this.state.currentList);
         }
     }
@@ -266,6 +286,25 @@ class App extends React.Component {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.addTransaction(transaction);
     }
+
+    /*// THIS FUNCTION ADDS A AddSong_Transaction TO THE TRANSACTION STACK
+    addAddSongTransaction = (title, artist, youTubeId, index) => {
+        let transaction = new AddSong_Transaction(this, title, artist, youTubeId, index);
+        this.tps.addTransaction(transaction);
+    }
+
+    // THIS FUNCTION ADDS A DeleteSong_Transaction TO THE TRANSACTION STACK
+    addDeleteSongTransaction = (index, title, artist, youTubeId) => {
+        let transaction = new DeleteSong_Transaction(this, title, artist, youTubeId, index);
+        this.tps.addTransaction(transaction);
+    }
+
+    // THIS FUNCTION ADDS A EditSong_Transaction TO THE TRANSACTION STACK
+    addEditSongTransaction = (index, newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId) => {
+        let transaction = new EditSong_Transaction(this, index, newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId);
+        this.tps.addTransaction(transaction);
+    }*/
+
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -288,7 +327,7 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : keyPair,
-            SongIndexMarkedForDeletion : prevState.SongIndexMarkedForDeletion,
+            SongIndexMarked : prevState.SongIndexMarked,
             sessionData: prevState.sessionData
         }), () => {
             // PROMPT THE USER
@@ -300,11 +339,28 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarkedForDeletion : index,
+            SongIndexMarked : index,
             sessionData: prevState.sessionData
         }), () => {
             // PROMPT THE USER
             this.showDeleteSongModal();
+        });
+    }
+
+    markSongForEdit = (index) => {
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            SongIndexMarked : index,
+            sessionData: prevState.sessionData
+        }), () => {
+            let song = this.state.currentList.songs[index];
+            document.getElementById("edit-title-text").value = song.title;
+            document.getElementById("edit-artist-text").value = song.artist;
+            document.getElementById("edit-youTubeId-text").value = song.youTubeId;
+            console.log(song);
+            // PROMPT THE USER
+            this.showEditSongModal();
         });
     }
 
@@ -330,6 +386,19 @@ class App extends React.Component {
     // THIS FUNCTION IS FOR HIDING THE MODAL
     hideDeleteSongModal() {
         let modal = document.getElementById("delete-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
+    // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
+    // TO SEE IF THEY REALLY WANT TO EDIT THE SONG
+    showEditSongModal() {
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.add("is-visible");
+    }
+
+    // THIS FUNCTION IS FOR HIDING THE MODAL
+    hideEditSongModal() {
+        let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
     }
 
@@ -364,9 +433,10 @@ class App extends React.Component {
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
-                    index={this.state.SongIndexMarkedForDeletion}
+                    index={this.state.SongIndexMarked}
                     moveSongCallback={this.addMoveSongTransaction}
-                    deleteSongCallback={this.markSongForDeletion} />
+                    deleteSongCallback={this.markSongForDeletion} 
+                    editSongCallback={this.markSongForEdit}/>
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteListModal
@@ -376,9 +446,15 @@ class App extends React.Component {
                 />
                 <DeleteSongModal
                     currentList={this.state.currentList}
-                    index={this.state.SongIndexMarkedForDeletion}
+                    index={this.state.SongIndexMarked}
                     hideDeleteSongModalCallback={this.hideDeleteSongModal}
                     deleteSongCallback={this.deleteMarkedSong}
+                />
+                <EditSongModal
+                    currentList={this.state.currentList}
+                    index={this.state.SongIndexMarked}
+                    hideEditSongModalCallback={this.hideEditSongModal}
+                    editSongCallback={this.editMarkedSong}
                 />
             </div>
         );

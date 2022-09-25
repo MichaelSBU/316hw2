@@ -9,6 +9,7 @@ export default class SongCard extends React.Component {
             draggedTo: false
         }
     }
+
     handleDragStart = (event) => {
         event.dataTransfer.setData("song", event.target.id);
         this.setState(prevState => ({
@@ -57,6 +58,11 @@ export default class SongCard extends React.Component {
         event.stopPropagation();
         this.props.deleteSongCallback(this.getItemNum()-1);
     }
+    handleEditSong = (event) => {
+        if (event.detail === 2) {
+            this.props.editSongCallback(this.getItemNum()-1);
+        }
+    }
 
     getItemNum = () => {
         return this.props.id.substring("playlist-song-".length);
@@ -78,6 +84,7 @@ export default class SongCard extends React.Component {
                 onDragEnter={this.handleDragEnter}
                 onDragLeave={this.handleDragLeave}
                 onDrop={this.handleDrop}
+                onClick={this.handleEditSong}
                 draggable="true"
             >
             {num}. 
