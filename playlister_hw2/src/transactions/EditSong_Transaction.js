@@ -1,25 +1,25 @@
-import jsTPS_Transaction from "../../common/jsTPS.js"
+import jsTPS_Transaction from "../common/jsTPS.js"
 /**
  * EditSong_Transaction
  */
 export default class EditSong_Transaction extends jsTPS_Transaction {
-    constructor(initModel, initSongIndex, initNewTitle, initNewArtist, initNewYouTubeId, initOldTitle, initOldArtist, initOldYouTubeId) {
+    constructor(initApp, initNewTitle, initNewArtist, initNewYouTubeId, initOldTitle, initOldArtist, initOldYouTubeId, initSongIndex) {
         super();
-        this.model = initModel;
+        this.app = initApp;
         this.songIndex = initSongIndex;
         this.newTitle = initNewTitle;
         this.newArtist = initNewArtist;
         this.newYouTubeId = initNewYouTubeId;
         this.oldTitle = initOldTitle;
         this.oldArtist = initOldArtist;
-        this.oldYouTubeId = initOldArtist;
+        this.oldYouTubeId = initOldYouTubeId;
     }
 
     doTransaction() {
-        this.model.editSong(this.newTitle, this.newArtist, this.newYouTubeId, this.songIndex);
+        this.app.editSong(this.newTitle, this.newArtist, this.newYouTubeId, this.songIndex);
     }
     
     undoTransaction() {
-        this.model.editSong(this.oldTitle, this.oldArtist, this.oldYouTubeId, this.songIndex);
+        this.app.editSong(this.oldTitle, this.oldArtist, this.oldYouTubeId, this.songIndex);
     }
 }

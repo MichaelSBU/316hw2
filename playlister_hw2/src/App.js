@@ -7,9 +7,9 @@ import jsTPS from './common/jsTPS.js';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
-//import AddSong_Transaction from './transactions/AddSong_Transaction.js';
-//import EditSong_Transaction from './transactions/EditSong_Transaction.js';
-//import DeleteSong_Transaction from './transactions/DeleteSong_Transaction.js';
+import AddSong_Transaction from './transactions/AddSong_Transaction.js';
+import EditSong_Transaction from './transactions/EditSong_Transaction.js';
+import DeleteSong_Transaction from './transactions/DeleteSong_Transaction.js';
 
 
 // THESE REACT COMPONENTS ARE MODALS
@@ -246,7 +246,8 @@ class App extends React.Component {
     }
 
     deleteMarkedSong = () => {
-        this.deleteSong(this.state.SongIndexMarked);
+        let songBeingDeleted = this.state.currentList.songs[this.state.SongIndexMarked];
+        this.addDeleteSongTransaction(songBeingDeleted.title, songBeingDeleted.artist, songBeingDeleted.youTubeId, this.state.SongIndexMarked);
         this.hideDeleteSongModal();
     }
 
@@ -262,7 +263,8 @@ class App extends React.Component {
         let title = document.getElementById("edit-title-text").value;
         let artist = document.getElementById("edit-artist-text").value;
         let id = document.getElementById("edit-youTubeId-text").value;
-        this.editSong(title, artist, id, this.state.SongIndexMarked);
+        let songBeingEdited = this.state.currentList.songs[this.state.SongIndexMarked];
+        this.addEditSongTransaction(title, artist, id, songBeingEdited.title, songBeingEdited.artist, songBeingEdited.youTubeId, this.state.SongIndexMarked);
         this.hideEditSongModal();
     }
 
@@ -287,24 +289,25 @@ class App extends React.Component {
         this.tps.addTransaction(transaction);
     }
 
-    /*// THIS FUNCTION ADDS A AddSong_Transaction TO THE TRANSACTION STACK
+    // THIS FUNCTION ADDS A AddSong_Transaction TO THE TRANSACTION STACK
     addAddSongTransaction = (title, artist, youTubeId, index) => {
         let transaction = new AddSong_Transaction(this, title, artist, youTubeId, index);
         this.tps.addTransaction(transaction);
     }
 
     // THIS FUNCTION ADDS A DeleteSong_Transaction TO THE TRANSACTION STACK
-    addDeleteSongTransaction = (index, title, artist, youTubeId) => {
+    addDeleteSongTransaction = (title, artist, youTubeId, index) => {
         let transaction = new DeleteSong_Transaction(this, title, artist, youTubeId, index);
         this.tps.addTransaction(transaction);
     }
 
     // THIS FUNCTION ADDS A EditSong_Transaction TO THE TRANSACTION STACK
-    addEditSongTransaction = (index, newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId) => {
-        let transaction = new EditSong_Transaction(this, index, newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId);
+    addEditSongTransaction = (newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId, index) => {
+        let transaction = new EditSong_Transaction(this, newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId, index);
         this.tps.addTransaction(transaction);
-    }*/
+    }
 
+    
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -358,7 +361,6 @@ class App extends React.Component {
             document.getElementById("edit-title-text").value = song.title;
             document.getElementById("edit-artist-text").value = song.artist;
             document.getElementById("edit-youTubeId-text").value = song.youTubeId;
-            console.log(song);
             // PROMPT THE USER
             this.showEditSongModal();
         });
@@ -426,7 +428,7 @@ class App extends React.Component {
                     canRedo={canRedo}
                     canClose={canClose} 
                     currentList={this.state.currentList}
-                    addSongCallback={this.addSong}
+                    addSongCallback={this.addAddSongTransaction}
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}

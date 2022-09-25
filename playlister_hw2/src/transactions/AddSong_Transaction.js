@@ -1,11 +1,11 @@
-import jsTPS_Transaction from "../../common/jsTPS.js"
+import jsTPS_Transaction from "../common/jsTPS.js"
 /**
  * AddSong_Transaction
  */
 export default class AddSong_Transaction extends jsTPS_Transaction {
-    constructor(initModel, initTitle, initArtist, initYouTubeId, initSongIndex) {
+    constructor(initApp, initTitle, initArtist, initYouTubeId, initSongIndex) {
         super();
-        this.model = initModel;
+        this.app = initApp;
         this.title = initTitle;
         this.artist = initArtist;
         this.youTubeId = initYouTubeId;
@@ -13,10 +13,10 @@ export default class AddSong_Transaction extends jsTPS_Transaction {
     }
 
     doTransaction() {
-        this.model.addNewSong(this.title, this.artist, this.youTubeId, this.songIndex);
+        this.app.addSong(this.title, this.artist, this.youTubeId, this.songIndex);
     }
     
     undoTransaction() {
-        this.model.deleteSong(this.songIndex);
+        this.app.deleteSong(this.songIndex);
     }
 }
