@@ -155,6 +155,11 @@ body {
   cursor: not-allowed;
 }
 
+.disabled {
+ opacity: 0.25;
+ cursor: not-allowed;
+}
+
 input {
   font-size:20pt;
 }
@@ -186,7 +191,7 @@ input {
 
 .modal-root {
   position: relative;
-  max-width: 1200vw;
+  max-width: 2400vw;
   max-height: 600vh;
   overflow: visible;
   display: flex;
@@ -212,7 +217,7 @@ input {
 
 .modal-center {
   display: grid;
-  grid-template-columns: 30% 65%;
+  grid-template-columns: 40% 58%;
   grid-template-rows: 33% 33% 33%;
   gap: 10px 20px;
   font-size: 48pt;

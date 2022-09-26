@@ -43,6 +43,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : null,
             SongIndexMarked : null,
             currentList : null,
+            modalOpen : false,
             sessionData : loadedSessionData
         }
     }
@@ -259,10 +260,12 @@ class App extends React.Component {
         this.setStateWithUpdatedList(currList);
     }
 
+    
+
     editMarkedSong = () => {
-        let title = document.getElementById("edit-title-text").value;
-        let artist = document.getElementById("edit-artist-text").value;
-        let id = document.getElementById("edit-youTubeId-text").value;
+        let title = document.getElementById("edit-song-modal-title-textfield").value;
+        let artist = document.getElementById("edit-song-modal-artist-textfield").value;
+        let id = document.getElementById("edit-song-modal-youTubeId-textfield").value;
         let songBeingEdited = this.state.currentList.songs[this.state.SongIndexMarked];
         this.addEditSongTransaction(title, artist, id, songBeingEdited.title, songBeingEdited.artist, songBeingEdited.youTubeId, this.state.SongIndexMarked);
         this.hideEditSongModal();
@@ -306,7 +309,6 @@ class App extends React.Component {
         let transaction = new EditSong_Transaction(this, newTitle, newArtist, newYouTubeId, oldTitle, oldArtist, oldYouTubeId, index);
         this.tps.addTransaction(transaction);
     }
-
     
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
@@ -358,62 +360,95 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             let song = this.state.currentList.songs[index];
-            document.getElementById("edit-title-text").value = song.title;
-            document.getElementById("edit-artist-text").value = song.artist;
-            document.getElementById("edit-youTubeId-text").value = song.youTubeId;
+            document.getElementById("edit-song-modal-title-textfield").value = song.title;
+            document.getElementById("edit-song-modal-artist-textfield").value = song.artist;
+            document.getElementById("edit-song-modal-youTubeId-textfield").value = song.youTubeId;
             // PROMPT THE USER
             this.showEditSongModal();
         });
     }
 
+    toggleModal() {
+        this.setState(prevState => ({
+            modalOpen : !prevState.modalOpen
+        }), () => {
+        });
+    }
+
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
-    showDeleteListModal() {
+    showDeleteListModal = () => {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.add("is-visible");
+        this.toggleModal();
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideDeleteListModal() {
+    hideDeleteListModal = () =>{
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
+        this.toggleModal();
     }
 
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE SONG
-    showDeleteSongModal() {
+    showDeleteSongModal = () => {
         let modal = document.getElementById("delete-song-modal");
         modal.classList.add("is-visible");
+        this.toggleModal();
     }
 
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideDeleteSongModal() {
+    hideDeleteSongModal = () => {
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
+        this.toggleModal();
     }
 
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO EDIT THE SONG
-    showEditSongModal() {
+    showEditSongModal = () => {
         let modal = document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
+        this.toggleModal();
     }
 
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideEditSongModal() {
+    hideEditSongModal = () => {
         let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
+        this.toggleModal();
+    }
+
+    handleKeyPress = (event) => {
+        if(event.ctrlKey){
+            if(event.keyCode === 90 && this.tps.hasTransactionToUndo()){
+                this.undo();
+            }
+            if(event.keyCode === 89 && this.tps.hasTransactionToRedo()){
+                this.redo();
+            }
+        }
     }
 
     render() {
+        let canAddList = this.state.currentList === null;
         let canAddSong = this.state.currentList !== null;
-        let canUndo = this.tps.hasTransactionToUndo();
-        let canRedo = this.tps.hasTransactionToRedo();
+        let canUndo = this.state.currentList !== null && this.tps.hasTransactionToUndo();
+        let canRedo = this.state.currentList !== null && this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
+        if(this.state.modalOpen){
+            canAddList = false;
+            canAddSong = false;
+            canUndo = false;
+            canRedo = false
+            canClose = false;
+        }
         return (
-            <div id="root">
+            <div id="root" onKeyDown={this.handleKeyPress}>
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
+                    canAddList={canAddList}
                 />
                 <SidebarList
                     currentList={this.state.currentList}
@@ -458,7 +493,7 @@ class App extends React.Component {
                     hideEditSongModalCallback={this.hideEditSongModal}
                     editSongCallback={this.editMarkedSong}
                 />
-            </div>
+            </div> 
         );
     }
 }
