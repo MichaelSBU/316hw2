@@ -10,7 +10,6 @@ export default class SidebarHeading extends React.Component {
     render() {
         const {canAddList} = this.props
         let addListClass = "toolbar-button";
-        console.log(canAddList)
         if (!canAddList){ addListClass += " disabled"; }
         return (
             <div id="sidebar-heading">

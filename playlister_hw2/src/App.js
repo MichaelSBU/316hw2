@@ -430,6 +430,20 @@ class App extends React.Component {
         }
     }
 
+   componentDidMount(){
+        document.addEventListener("keydown", (event) => {
+            if (event.ctrlKey){
+                if(event.key === 'z' && this.tps.hasTransactionToUndo()){
+                    this.undo();
+                }
+                if(event.key === 'y' && this.tps.hasTransactionToRedo()){
+                    this.redo();
+                }
+            }
+            this.setStateWithUpdatedList(this.state.currentList);
+          });
+    }
+
     render() {
         let canAddList = this.state.currentList === null;
         let canAddSong = this.state.currentList !== null;
@@ -444,7 +458,7 @@ class App extends React.Component {
             canClose = false;
         }
         return (
-            <div id="root" onKeyDown={this.handleKeyPress}>
+            <div id="root">
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
