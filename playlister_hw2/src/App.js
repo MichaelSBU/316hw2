@@ -79,14 +79,15 @@ class App extends React.Component {
         // SO ANY AFTER EFFECTS THAT NEED TO USE THIS UPDATED STATE
         // SHOULD BE DONE VIA ITS CALLBACK
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             SongIndexMarked : prevState.SongIndexMarked,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             currentList: newList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
                 keyNamePairs: updatedPairs
-            }
+            },
+            modalOpen : prevState.modalOpen
         }), () => {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
@@ -117,14 +118,15 @@ class App extends React.Component {
 
         // AND FROM OUR APP STATE
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : null,
             SongIndexMarked : prevState.SongIndexMarked,
+            listKeyPairMarkedForDeletion : null,
             currentList: newCurrentList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter - 1,
                 keyNamePairs: newKeyNamePairs
-            }
+            },
+            modalOpen : prevState.modalOpen
         }), () => {
             // DELETING THE LIST FROM PERMANENT STORAGE
             // IS AN AFTER EFFECT
@@ -163,13 +165,15 @@ class App extends React.Component {
         }
 
         this.setState(prevState => ({
+            SongIndexMarked : prevState.SongIndexMarked,
             listKeyPairMarkedForDeletion : null,
-            SongIndexMarked : null,
+            currentList: prevState.currentList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
-                keyNamePairs: newKeyNamePairs
-            }
+                keyNamePairs: newKeyNamePairs,
+            },
+            modalOpen : prevState.modalOpen
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
@@ -183,10 +187,11 @@ class App extends React.Component {
     loadList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             SongIndexMarked : prevState.SongIndexMarked,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             currentList: newCurrentList,
-            sessionData: this.state.sessionData
+            sessionData: this.state.sessionData,
+            modalOpen : prevState.modalOpen
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
@@ -196,10 +201,11 @@ class App extends React.Component {
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             SongIndexMarked : prevState.SongIndexMarked,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             currentList: null,
-            sessionData: this.state.sessionData
+            sessionData: this.state.sessionData,
+            modalOpen : prevState.modalOpen
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
@@ -208,10 +214,11 @@ class App extends React.Component {
     }
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
+            SongIndexMarked : prevState.SongIndexMarked,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarked : null,
             currentList : list,
-            sessionData : this.state.sessionData
+            sessionData : this.state.sessionData,
+            modalOpen : prevState.modalOpen
         }), () => {
             // UPDATING THE LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
@@ -250,6 +257,14 @@ class App extends React.Component {
         let songBeingDeleted = this.state.currentList.songs[this.state.SongIndexMarked];
         this.addDeleteSongTransaction(songBeingDeleted.title, songBeingDeleted.artist, songBeingDeleted.youTubeId, this.state.SongIndexMarked);
         this.hideDeleteSongModal();
+        this.setState(prevState => ({
+            SongIndexMarked : null,
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData,
+            modalOpen : prevState.modalOpen
+        }),() => { 
+        });
     }
 
 
@@ -330,10 +345,11 @@ class App extends React.Component {
     }
     markListForDeletion = (keyPair) => {
         this.setState(prevState => ({
+            SongIndexMarked : prevState.SongIndexMarked,
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : keyPair,
-            SongIndexMarked : prevState.SongIndexMarked,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            modalOpen : prevState.modalOpen
         }), () => {
             // PROMPT THE USER
             this.showDeleteListModal();
@@ -342,10 +358,11 @@ class App extends React.Component {
 
     markSongForDeletion = (index) => {
         this.setState(prevState => ({
+            SongIndexMarked : index,
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarked : index,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            modalOpen : prevState.modalOpen
         }), () => {
             // PROMPT THE USER
             this.showDeleteSongModal();
@@ -354,10 +371,11 @@ class App extends React.Component {
 
     markSongForEdit = (index) => {
         this.setState(prevState => ({
+            SongIndexMarked : index,
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            SongIndexMarked : index,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            modalOpen : prevState.modalOpen
         }), () => {
             let song = this.state.currentList.songs[index];
             document.getElementById("edit-song-modal-title-textfield").value = song.title;
@@ -370,6 +388,10 @@ class App extends React.Component {
 
     toggleModal() {
         this.setState(prevState => ({
+            SongIndexMarked : prevState.SongIndexMarked,
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData,
             modalOpen : !prevState.modalOpen
         }), () => {
         });
@@ -440,14 +462,21 @@ class App extends React.Component {
                     this.redo();
                 }
             }
-            this.setStateWithUpdatedList(this.state.currentList);
+            this.setState(prevState => ({
+                SongIndexMarked : prevState.SongIndexMarked,
+                listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+                currentList : prevState.currentList,
+                sessionData : prevState.sessionData,
+                modalOpen : prevState.modalOpen
+            }), () => {
+            });
           });
     }
 
     render() {
         let canAddList = this.state.currentList === null;
         let canAddSong = this.state.currentList !== null;
-        let canUndo = this.state.currentList !== null && this.tps.hasTransactionToUndo();
+        let canUndo = this.tps.hasTransactionToUndo() && this.state.currentList !== null;
         let canRedo = this.state.currentList !== null && this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
         if(this.state.modalOpen){

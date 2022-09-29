@@ -5,6 +5,7 @@ export default class DeleteSongModal extends Component {
         const { currentList, index, hideDeleteSongModalCallback, deleteSongCallback } = this.props;
         let name = "";
         if (currentList != null && index != null) {
+            console.log(currentList.songs[index]);
             name = currentList.songs[index].title;
         }
         return (
