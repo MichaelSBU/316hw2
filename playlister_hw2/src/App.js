@@ -196,6 +196,13 @@ class App extends React.Component {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
             this.tps.clearAllTransactions();
+            this.setState(prevState => ({
+                SongIndexMarked : prevState.SongIndexMarked,
+                listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+                currentList: prevState.currentList,
+                sessionData: prevState.sessionData,
+                modalOpen : prevState.modalOpen
+            }), () => {});
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -210,6 +217,13 @@ class App extends React.Component {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
             this.tps.clearAllTransactions();
+            this.setState(prevState => ({
+                SongIndexMarked : prevState.SongIndexMarked,
+                listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+                currentList: prevState.currentList,
+                sessionData: prevState.sessionData,
+                modalOpen : prevState.modalOpen
+            }), () => {});
         });
     }
     setStateWithUpdatedList(list) {
